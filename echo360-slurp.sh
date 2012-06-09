@@ -2,22 +2,17 @@
 
 urlEncode() { echo "$1" | python2 -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())' ; }
 
+wget $1
+
+[ -e index.html ] || exit #minimal fail test
+
 IFS=$'\n'
 filetitles=$(cat index.html | grep Title | sed 's/.*strong> \(.*\)<br>/\1/' | uniq | sed 's/\//-/') 
 
 filestoget=( $(cat index.html | grep Vodcast | awk '/href/ {print $5}' | sed 's/.*\(http.*\)\.m4v"/\1content.m4v/') )
 filedates=( $(cat index.html | grep Capture | sed 's/.*strong> \(.*\)<br>/\1/') )
 
-echo ${#filestoget[*]}
-
 numfiles=${#filestoget[*]}
-
-#for a in $( seq 0 $numtitles ) ;
-#do
-#  echo ${filetitles[a]}
-#  echo ${filedates[a]}
-#  echo ${filestoget[a]}
-#done;
 
 read -p "Username: " usrname
 urlname=$(urlEncode "$usrname" )
@@ -27,6 +22,7 @@ urlpass=$(urlEncode "$pass")
 echo
 
 [ -d $filetitles ] || mkdir "$filetitles"
+[ -d $filetitles ] || exit # minimal fail protection
 cd "$filetitles"
 
 firstfile=1;
