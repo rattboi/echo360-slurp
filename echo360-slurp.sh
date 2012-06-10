@@ -1,6 +1,6 @@
 #!/bin/bash
 
-urlEncode() { echo "$1" | python2 -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())' ; }
+urlEncode() { echo "$1" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'; }
 
 wget $1
 
