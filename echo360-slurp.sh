@@ -2,9 +2,49 @@
 
 urlEncode() { echo "$1" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'; }
 
-[ -e index.html ] && rm index.html # remove the file we're about to download, so wget doesn't make index.html.1
-wget $1
-[ -e index.html ] || exit #minimal fail test
+read -p "Username: " usrname
+urlname=$(urlEncode "$usrname" )
+read -s -p "Password: " pass
+urlpass=$(urlEncode "$pass")
+
+wget --save-cookies cookies.txt \
+     --keep-session-cookies \
+     --referer="http://media.pdx.edu/dlcmedia/2010/fall/ECE411/" \
+     "$1" -O firstpage.html
+
+wget --load-cookies cookies.txt \
+     --keep-session-cookies \
+     --referer="https://echo360.pdx.edu/ess/ContentLogin.html" \
+     --save-cookies cookies.txt \
+     --post-data="j_username=$urlname&j_password=$urlpass" \
+     "https://echo360.pdx.edu/ess/j_spring_security_check" \
+     -O secondpage.html
+
+thirdpageurl=$( cat secondpage.html | grep div | sed 's/.*src=\"\(.*\)\" scrolling.*/\1/' )
+thirdpage=$( echo https://echo360.pdx.edu"$thirdpageurl" )
+
+echo $thirdpage
+
+wget --load-cookies cookies.txt \
+     --keep-session-cookies \
+     --referer="https://echo360.pdx.edu/ess/ContentLogin.html" \
+     --save-cookies cookies.txt \
+     "$thirdpage" \
+     -O thirdpage.html 
+
+fourthpageurl=$( cat thirdpage.html| grep previous | sed 's/.*href=\"\(.*\)\".*/\1/' | sed 's/amp;//g' )
+fourthpage=$( echo http://echo360.pdx.edu"$fourthpageurl" )
+
+echo $fourthpage
+
+wget --load-cookies cookies.txt \
+     --keep-session-cookies \
+     --referer="$thirdpage" \
+     --save-cookies cookies.txt \
+     "$fourthpage" \
+     -O index.html 
+
+exit
 
 IFS=$'\n'
 filetitles=$(cat index.html | grep Title | sed 's/.*strong> \(.*\)<br>/\1/' | uniq | sed 's/\//-/g') 
