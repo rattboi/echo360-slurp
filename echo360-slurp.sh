@@ -2,8 +2,8 @@
 
 urlEncode() { echo "$1" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'; }
 
+[ -e index.html ] && rm index.html # remove the file we're about to download, so wget doesn't make index.html.1
 wget $1
-
 [ -e index.html ] || exit #minimal fail test
 
 IFS=$'\n'
