@@ -7,7 +7,7 @@ wget $1
 [ -e index.html ] || exit #minimal fail test
 
 IFS=$'\n'
-filetitles=$(cat index.html | grep Title | sed 's/.*strong> \(.*\)<br>/\1/' | uniq | sed 's/\//-/') 
+filetitles=$(cat index.html | grep Title | sed 's/.*strong> \(.*\)<br>/\1/' | uniq | sed 's/\//-/g') 
 
 filestoget=( $(cat index.html | grep Vodcast | awk '/href/ {print $5}' | sed 's/.*\(http.*\)\.m4v"/\1content.m4v/') )
 filedates=( $(cat index.html | grep Capture | sed 's/.*strong> \(.*\)<br>/\1/') )
