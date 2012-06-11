@@ -49,7 +49,7 @@ filetitles=$(cat index.html | grep course-text | grep span | sed 's/.*course-tex
 
 echo $filetitles
 
-filestoget=( $(cat index.html | grep Video | sed 's/.*href=.\(.*\)\.m4v.*/\1/') )
+filestoget=( $(cat index.html | grep Video | sed 's/.*href=.\(.*\)\.m4v.*/\1content.m4v/') )
 filedates=( $( cat index.html | grep Lecture | grep h4 | sed 's/.*\(Lecture.*\):.*/\1/' ) )
 
 numfiles=${#filestoget[*]}
@@ -58,13 +58,13 @@ echo $numfiles
 
 [ -d $filetitles ] || mkdir "$filetitles"
 [ -d $filetitles ] || exit # minimal fail protection
-cd "$filetitles"
 
-exit
+cp cookies.txt "$filetitles"
+cd "$filetitles"
 
 for a in $( seq 0 $numfiles );
 do
-  wget --referer="https://echo360.pdx.edu/ess/j_spring_security_check" \
+  wget --referer="$fourthpage" \
        --cookies="on" \
        --load-cookies cookies.txt \
        --keep-session-cookies \
